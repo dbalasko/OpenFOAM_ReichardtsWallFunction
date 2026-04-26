@@ -26,26 +26,36 @@ Class
 
 Description
     This boundary condition provides a turbulent kinematic viscosity condition
-    when using wall functions for rough walls, based on velocity,  using
-    Spalding's law to give a continuous nut profile to the wall (y+ = 0)
+    for smooth walls using Reichardt's law of the wall, which gives a single
+    continuous u+ profile from the viscous sublayer through the buffer layer
+    and into the log-law region (valid down to y+ = 0).
 
     \f[
-        y^+ = u^+ + \frac{1}{E} \left[exp(\kappa u^+) - 1 - \kappa u^+\,
-            - 0.5 (\kappa u^+)^2 - \frac{1}{6} (\kappa u^+)^3\right]
+        u^+ = \frac{1}{\kappa} \ln (1 + \kappa\, y^+)
+            + C \left[1 - e^{-y^+/11} - \frac{y^+}{11} e^{-y^+/3}\right]
     \f]
 
     where
     \vartable
-        y^+     | non-dimensional position
         u^+     | non-dimensional velocity
-        \kappa  | Von Karman constant
+        y^+     | non-dimensional wall distance
+        \kappa  | von Karman constant
+        C       | Reichardt's constant (default 7.8)
     \endvartable
+
+    The friction velocity is obtained by Newton-Raphson iteration of the above
+    profile. The turbulent viscosity is then back-calculated as:
+
+    \f[
+        \nu_t = \frac{u_\tau^2}{|\partial U / \partial n|} - \nu
+    \f]
 
     Reference:
     \verbatim
-        Spalding, D. B., (1961).
-        A Single Formula for the "Law of the Wall".
-        Journal of Applied Mechanics, 28(3), 455-458
+        Reichardt, H. (1951).
+        Vollstaendige Darstellung der turbulenten Geschwindigkeitsverteilung
+        in glatten Leitungen.
+        ZAMM, 31(7), 208-219.
     \endverbatim
 
 Usage
@@ -54,6 +64,7 @@ Usage
     <patchName>
     {
         type            myReichardtWallFunction;
+        C               7.8;    // optional; Reichardt's constant
         value           uniform 0;
     }
     \endverbatim
